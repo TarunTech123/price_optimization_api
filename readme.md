@@ -24,7 +24,7 @@ This is the backend API for a Price Optimization Tool, built with Flask.
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your_repository_url>
+    git clone https://github.com/TarunTech123/price_optimization_api.git
     cd price_optimization_api
     ```
 
@@ -80,7 +80,7 @@ The `Product` model has the following attributes:
 
 ## Example Usage
 
-(Provide examples of how to use the API endpoints, e.g., using `curl` or `Postman`)
+Created SWagger Documentation
 
 ## Database
 
