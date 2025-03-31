@@ -7,8 +7,8 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-# Enable CORS for all routes and origins
-CORS(app)
+# Enable CORS for all routes
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 app.config["JWT_SECRET_KEY"] = "super-secret-key"  # Change in production
 jwt = JWTManager(app)
 
@@ -345,7 +345,7 @@ def update_product(product_id):
     return jsonify({"message": "Product updated successfully"}), 200
 
 # ✅ DELETE Product
-@app.route('/products/<int:product_id>', methods=['DELETE'])
+@app.route('/api/products/<int:product_id>', methods=['DELETE'])
 @jwt_required()
 def delete_product(product_id):
     """
@@ -381,7 +381,7 @@ def delete_product(product_id):
     return jsonify({"message": "Product deleted successfully"}), 200
 
 
-@app.route('/products/search', methods=['GET'])
+@app.route('/api/products/search', methods=['GET'])
 @jwt_required()
 def search_product():
     """
@@ -424,9 +424,9 @@ def search_product():
                p.customer_rating, p.demand_forecast, p.optimized_price
         FROM Product p
         JOIN Category c ON p.category_id = c.id
-        WHERE p.name LIKE ?
+        WHERE LOWER(p.name) LIKE ?
         """
-        cursor.execute(query, (f"%{product_name}%",))
+        cursor.execute(query, (f"%{product_name.lower()}%",))
         products = cursor.fetchall()
         conn.close()
 
@@ -551,6 +551,82 @@ def get_demand_forecast():
 
     conn.close()
     return jsonify(result)
+
+@app.route('/api/categories', methods=['GET'])
+@jwt_required()
+def get_categories():
+    """
+    Get all categories
+    ---
+    tags:
+      - Categories
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: A list of all product categories
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name FROM Category")
+    categories = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+
+    conn.close()
+    return jsonify(categories), 200
+
+@app.route('/api/products/category', methods=['GET'])
+@jwt_required()
+def get_products_by_category():
+    """
+    Get all products or filter by category_id
+    ---
+    tags:
+      - Products
+    security:
+      - Bearer: []
+    parameters:
+      - name: category_id
+        in: query
+        required: false
+        type: integer
+    responses:
+      200:
+        description: A list of products with optional filtering by category
+    """
+    category_id = request.args.get("category_id")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+    SELECT p.id, p.name, p.description, p.cost_price, p.selling_price, 
+           c.name as category_name, p.stock_available, p.units_sold, 
+           p.customer_rating, p.demand_forecast, p.optimized_price
+    FROM Product p
+    JOIN Category c ON p.category_id = c.id
+    """
+    
+    params = []
+    if category_id:
+        query += " WHERE p.category_id = ?"
+        params.append(category_id)
+
+    cursor.execute(query, params)
+
+    products = [
+        {
+            "id": row[0], "name": row[1], "description": row[2], "cost_price": row[3],
+            "selling_price": row[4], "category_name": row[5], "stock_available": row[6],
+            "units_sold": row[7], "customer_rating": row[8], "demand_forecast": row[9],
+            "optimized_price": row[10]
+        }
+        for row in cursor.fetchall()
+    ]
+
+    conn.close()
+    return jsonify(products), 200
+
 # -------------------- Running Flask App -------------------- #
 if __name__ == '__main__':
     app.run(debug=True)

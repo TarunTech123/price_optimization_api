@@ -50,33 +50,7 @@ This is the backend API for a Price Optimization Tool, built with Flask.
     python app.py
     ```
 
-    The API will be accessible at `http://127.0.0.1:5000/`.
-
-## API Endpoints
-
-* `GET /products`:  Get all products.
-* `GET /products/<product_id>`:  Get a specific product.
-* `POST /products`:  Create a new product.
-* `PUT /products/<product_id>`:  Update a product.
-* `DELETE /products/<product_id>`:  Delete a product. etc..
-
-## Data Model
-
-The `Product` model has the following attributes:
-
-| Attribute       | Data Type | Description                     |
-| :-------------- | :-------- | :------------------------------ |
-| `product_id`    | Integer   | Unique identifier               |
-| `name`          | String    | Product name                    |
-| `description`   | String    | Product description             |
-| `cost_price`    | Float     | Cost price                      |
-| `selling_price` | Float     | Selling price                   |
-| `category`      | String    | Product category                |
-| `stock_available` | Integer   | Available stock                 |
-| `units_sold`    | Integer   | Units sold                      |
-| `customer_rating` | Float     | Customer rating                 |
-| `demand_forecast` | Integer   | Demand forecast                 |
-| `optimized_price` | Float     | Optimized price                 |
+    The API will be accessible at `http://127.0.0.1:5000/`.                 |
 
 ## Example Usage
 
@@ -84,4 +58,4 @@ Created SWagger Documentation
 
 ## Database
 
-SQL Server
+ * SQL Server
